@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+  --color-rose-500: #FF385C;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
