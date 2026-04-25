@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import ListingCard from './components/ListingCard';
 
 const categories = [
   { label: 'Beachfront', icon: '🏖️' },
@@ -18,26 +17,64 @@ const categories = [
 
 const upcomingDates = ["Apr 25–27", "May 2–4", "May 9–11", "May 16–18"];
 
+const Card = ({ listing, isFav, toggleFav, onClickCard }) => {
+  return (
+    <div className="group cursor-pointer flex flex-col gap-3" onClick={() => onClickCard(listing)}>
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-gray-100">
+        {listing.badge === 'Guest favourite' && (
+          <div className="absolute top-3 left-3 bg-white/95 px-2 py-1 rounded-full text-sm font-semibold shadow-sm z-10 text-gray-900">
+            Guest favourite
+          </div>
+        )}
+        <button 
+          onClick={(e) => { e.stopPropagation(); toggleFav(listing.id); }}
+          className="absolute top-3 right-3 z-10 p-1 hover:scale-110 transition-transform"
+        >
+          <svg viewBox="0 0 32 32" className={`block h-6 w-6 stroke-white stroke-[2px] ${isFav ? 'fill-rose-500 stroke-rose-500' : 'fill-black/50'}`}>
+            <path d="M16 28c7-4.73 14-10 14-17a6.98 6.98 0 0 0-7-7c-1.8 0-3.58.68-4.95 2.05L16 8.1l-2.05-2.05a6.98 6.98 0 0 0-9.9 0A6.98 6.98 0 0 0 2 11c0 7 7 12.27 14 17z" />
+          </svg>
+        </button>
+        <img 
+          src={listing.image} 
+          alt={listing.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out"
+        />
+      </div>
+      <div>
+        <div className="flex justify-between items-start">
+          <h3 className="font-semibold text-gray-900 truncate pr-4">{listing.location}</h3>
+          <div className="flex items-center gap-1 text-gray-900">
+            <svg viewBox="0 0 32 32" className="h-3 w-3 fill-current"><path d="M15.094 1.579l-4.124 8.885-9.86 1.27a1 1 0 0 0-.542 1.736l7.293 6.565-1.965 9.852a1 1 0 0 0 1.483 1.061L16 25.951l8.625 4.997a1 1 0 0 0 1.482-1.06l-1.965-9.853 7.293-6.565a1 1 0 0 0-.541-1.735l-9.86-1.271-4.127-8.885a1 1 0 0 0-1.814 0z" /></svg>
+            <span className="font-light text-sm">{listing.rating}</span>
+          </div>
+        </div>
+        <p className="text-gray-500 text-sm truncate">{listing.title}</p>
+        <p className="text-gray-900 text-sm mt-1"><span className="font-semibold">₹{listing.price}</span> <span className="font-light">for {listing.nights || 2} nights</span></p>
+      </div>
+    </div>
+  );
+};
+
 export default function App() {
   const [allListings, setAllListings] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
-  
+
   // Search state
   const [inputValue, setInputValue] = useState('');
   const [appliedSearchTerm, setAppliedSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
-  
+
   // Date picker state
   const [selectedDate, setSelectedDate] = useState('');
   const [showDateDropdown, setShowDateDropdown] = useState(false);
 
   const [guests, setGuests] = useState(0);
   const [activeCategory, setActiveCategory] = useState(null);
-  
+
   const [favorites, setFavorites] = useState([]);
   const [view, setView] = useState('Home'); // 'Home' or 'Wishlist'
-  
+
   // Modal State
   const [selectedListing, setSelectedListing] = useState(null);
   const [isReserved, setIsReserved] = useState(false);
@@ -68,14 +105,14 @@ export default function App() {
   const handleLocationChange = (e) => {
     const val = e.target.value;
     setInputValue(val);
-    
+
     if (val.trim() === '') {
       setShowDropdown(false);
       setSuggestions([]);
       setAppliedSearchTerm(''); // auto clear search
     } else {
       const t = val.toLowerCase().trim();
-      const matched = allListings.filter(l => 
+      const matched = allListings.filter(l =>
         l.city?.toLowerCase().includes(t) ||
         l.state?.toLowerCase().includes(t) ||
         l.title?.toLowerCase().includes(t) ||
@@ -90,7 +127,9 @@ export default function App() {
     setAppliedSearchTerm(term);
     setInputValue(term);
     setShowDropdown(false);
+    setShowDateDropdown(false); // Close date dropdown if open
     setActiveCategory(null); // Reset category when doing a new search
+    setView('Home'); // Ensure we switch back to the main listings view
   };
 
   const handleSuggestionClick = (loc) => applySearch(loc);
@@ -110,8 +149,8 @@ export default function App() {
 
   const toggleFav = (id) => {
     setFavorites(prev => {
-      const newFavs = prev.includes(id) 
-        ? prev.filter(favId => favId !== id) 
+      const newFavs = prev.includes(id)
+        ? prev.filter(favId => favId !== id)
         : [...prev, id];
       localStorage.setItem('wishlist', JSON.stringify(newFavs));
       return newFavs;
@@ -152,42 +191,41 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
       {/* Sticky Navbar */}
-<Navbar
-  inputValue={inputValue}
-  setInputValue={setInputValue}
-  handleLocationChange={handleLocationChange}
-  handleSearchKeyDown={handleSearchKeyDown}
-  handleSuggestionClick={handleSuggestionClick}
-  suggestions={suggestions}
-  showDropdown={showDropdown}
-  selectedDate={selectedDate}
-  setSelectedDate={setSelectedDate}
-  showDateDropdown={showDateDropdown}
-  setShowDateDropdown={setShowDateDropdown}
-  upcomingDates={upcomingDates}
-  guests={guests}
-  incrementGuests={incrementGuests}
-  decrementGuests={decrementGuests}
-  handleSearchButtonClick={handleSearchButtonClick}
-  view={view}
-  setView={setView}
-  clearSearchAndFilters={clearSearchAndFilters}
-  setActiveCategory={setActiveCategory}
-/>
+      <Navbar
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+        handleLocationChange={handleLocationChange}
+        handleSearchKeyDown={handleSearchKeyDown}
+        handleSuggestionClick={handleSuggestionClick}
+        suggestions={suggestions}
+        showDropdown={showDropdown}
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+        showDateDropdown={showDateDropdown}
+        setShowDateDropdown={setShowDateDropdown}
+        upcomingDates={upcomingDates}
+        guests={guests}
+        incrementGuests={incrementGuests}
+        decrementGuests={decrementGuests}
+        handleSearchButtonClick={handleSearchButtonClick}
+        view={view}
+        setView={setView}
+        clearSearchAndFilters={clearSearchAndFilters}
+        setActiveCategory={setActiveCategory}
+      />
 
       {/* Category Bar */}
       {view === 'Home' && (
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 mt-5">
           <div className="flex items-center gap-8 overflow-x-auto pb-4 scrollbar-hide border-b border-gray-200">
             {categories.map((cat, idx) => (
-              <button 
+              <button
                 key={idx}
                 onClick={() => handleCategoryClick(cat.label)}
-                className={`flex flex-col items-center gap-2.5 min-w-max pb-3 border-b-2 transition-colors ${
-                  activeCategory === cat.label 
-                    ? 'border-gray-900 text-gray-900' 
+                className={`flex flex-col items-center gap-2.5 min-w-max pb-3 border-b-2 transition-colors ${activeCategory === cat.label
+                    ? 'border-gray-900 text-gray-900'
                     : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300'
-                }`}
+                  }`}
               >
                 <span className="text-2xl">{cat.icon}</span>
                 <span className="text-sm font-medium">{cat.label}</span>
@@ -199,18 +237,18 @@ export default function App() {
 
       {/* Main Content */}
       <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-6 space-y-12 min-h-[60vh]">
-        
+
         {initialLoading ? (
           <div className="flex flex-col items-center justify-center h-64">
-             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500 mb-4"></div>
-             <p className="text-gray-500 font-semibold text-lg">Loading homes...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500 mb-4"></div>
+            <p className="text-gray-500 font-semibold text-lg">Loading homes...</p>
           </div>
         ) : visibleListings.length === 0 ? (
           <div className="flex flex-col justify-center items-center h-64 animate-in fade-in zoom-in-95">
-            <svg viewBox="0 0 32 32" className="h-16 w-16 fill-gray-300 mb-4"><path d="M26 14a12 12 0 1 0-8.6 11.5l6.2 6.2a1 1 0 0 0 1.4-1.4l-6.2-6.2A11.9 11.9 0 0 0 26 14zm-12 10a10 10 0 1 1 10-10 10 10 0 0 1-10 10z"/></svg>
+            <svg viewBox="0 0 32 32" className="h-16 w-16 fill-gray-300 mb-4"><path d="M26 14a12 12 0 1 0-8.6 11.5l6.2 6.2a1 1 0 0 0 1.4-1.4l-6.2-6.2A11.9 11.9 0 0 0 26 14zm-12 10a10 10 0 1 1 10-10 10 10 0 0 1-10 10z" /></svg>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">No exact matches</h2>
             <p className="text-gray-500 mb-6">Try changing or removing some of your filters.</p>
-            <button 
+            <button
               onClick={clearSearchAndFilters}
               className="border border-black text-black hover:bg-gray-50 px-6 py-2.5 rounded-lg font-semibold transition"
             >
@@ -224,7 +262,7 @@ export default function App() {
                 <h2 className="text-3xl font-bold mb-6 tracking-tight">Your Wishlist</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-6 gap-y-10">
                   {visibleListings.map(listing => (
-                    <ListingCard 
+                    <Card 
                       key={listing.id} 
                       listing={listing} 
                       isFav={favorites.includes(listing.id)} 
@@ -245,7 +283,7 @@ export default function App() {
                 )}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-6 gap-y-10">
                   {visibleListings.map(listing => (
-                    <ListingCard 
+                    <Card 
                       key={listing.id} 
                       listing={listing} 
                       isFav={favorites.includes(listing.id)} 
@@ -262,30 +300,30 @@ export default function App() {
 
       {/* Listing Detail Modal with Backdrop Blur */}
       {selectedListing && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity" 
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity"
           onClick={() => setSelectedListing(null)}
         >
-          <div 
+          <div
             className="bg-white rounded-2xl max-w-3xl w-full max-h-[95vh] overflow-y-auto shadow-2xl relative animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <button 
+            <button
               onClick={() => setSelectedListing(null)}
               className="absolute top-4 left-4 bg-white/90 hover:bg-white rounded-full p-2 z-10 shadow-sm transition-transform hover:scale-105"
             >
               <svg viewBox="0 0 32 32" className="block h-4 w-4 fill-current"><path d="m20 28-11.29289322-11.2928932c-.39052429-.3905243-.39052429-1.0236893 0-1.4142136l11.29289322-11.2928932" stroke="currentColor" strokeWidth="3" fill="none" /></svg>
             </button>
-            
+
             {/* Modal Image */}
             <div className="w-full h-80 relative">
-              <img 
-                src={selectedListing.image} 
-                alt={selectedListing.title} 
+              <img
+                src={selectedListing.image}
+                alt={selectedListing.title}
                 className="w-full h-full object-cover rounded-t-2xl"
               />
             </div>
-            
+
             <div className="p-8">
               <div className="flex justify-between items-start mb-6">
                 <div>
@@ -299,12 +337,12 @@ export default function App() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Host and Category row */}
               <div className="flex items-center gap-4 mb-6 border-b border-gray-200 pb-6">
-                <img 
-                  src={`https://ui-avatars.com/api/?name=Host&background=random`} 
-                  alt="Host" 
+                <img
+                  src={`https://ui-avatars.com/api/?name=Host&background=random`}
+                  alt="Host"
                   className="w-14 h-14 rounded-full border border-gray-200 shadow-sm"
                 />
                 <div>
@@ -329,14 +367,13 @@ export default function App() {
                     ₹{selectedListing.price} × {selectedListing.nights || 2} nights = ₹{selectedListing.price * (selectedListing.nights || 2)} total
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => setIsReserved(true)}
                   disabled={isReserved}
-                  className={`px-10 py-4 rounded-xl font-bold text-lg transition shadow-md ${
-                    isReserved 
-                      ? 'bg-green-500 hover:bg-green-600 text-white cursor-default transform-none' 
+                  className={`px-10 py-4 rounded-xl font-bold text-lg transition shadow-md ${isReserved
+                      ? 'bg-green-500 hover:bg-green-600 text-white cursor-default transform-none'
                       : 'bg-rose-500 hover:bg-rose-600 text-white hover:scale-105 active:scale-95'
-                  }`}
+                    }`}
                 >
                   {isReserved ? 'Reserved! ✓' : 'Reserve'}
                 </button>
