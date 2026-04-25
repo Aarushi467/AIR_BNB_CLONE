@@ -58,23 +58,23 @@ const Card = ({ listing, isFav, toggleFav, onClickCard }) => {
 export default function App() {
   const [allListings, setAllListings] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
-
+  
   // Search state
   const [inputValue, setInputValue] = useState('');
   const [appliedSearchTerm, setAppliedSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
-
+  
   // Date picker state
   const [selectedDate, setSelectedDate] = useState('');
   const [showDateDropdown, setShowDateDropdown] = useState(false);
 
   const [guests, setGuests] = useState(0);
   const [activeCategory, setActiveCategory] = useState(null);
-
+  
   const [favorites, setFavorites] = useState([]);
   const [view, setView] = useState('Home'); // 'Home' or 'Wishlist'
-
+  
   // Modal State
   const [selectedListing, setSelectedListing] = useState(null);
   const [isReserved, setIsReserved] = useState(false);
@@ -105,14 +105,14 @@ export default function App() {
   const handleLocationChange = (e) => {
     const val = e.target.value;
     setInputValue(val);
-
+    
     if (val.trim() === '') {
       setShowDropdown(false);
       setSuggestions([]);
       setAppliedSearchTerm(''); // auto clear search
     } else {
       const t = val.toLowerCase().trim();
-      const matched = allListings.filter(l =>
+      const matched = allListings.filter(l => 
         l.city?.toLowerCase().includes(t) ||
         l.state?.toLowerCase().includes(t) ||
         l.title?.toLowerCase().includes(t) ||
@@ -127,9 +127,7 @@ export default function App() {
     setAppliedSearchTerm(term);
     setInputValue(term);
     setShowDropdown(false);
-    setShowDateDropdown(false); // Close date dropdown if open
     setActiveCategory(null); // Reset category when doing a new search
-    setView('Home'); // Ensure we switch back to the main listings view
   };
 
   const handleSuggestionClick = (loc) => applySearch(loc);
@@ -149,8 +147,8 @@ export default function App() {
 
   const toggleFav = (id) => {
     setFavorites(prev => {
-      const newFavs = prev.includes(id)
-        ? prev.filter(favId => favId !== id)
+      const newFavs = prev.includes(id) 
+        ? prev.filter(favId => favId !== id) 
         : [...prev, id];
       localStorage.setItem('wishlist', JSON.stringify(newFavs));
       return newFavs;
@@ -191,41 +189,149 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
       {/* Sticky Navbar */}
-      <Navbar
-        inputValue={inputValue}
-        setInputValue={setInputValue}
-        handleLocationChange={handleLocationChange}
-        handleSearchKeyDown={handleSearchKeyDown}
-        handleSuggestionClick={handleSuggestionClick}
-        suggestions={suggestions}
-        showDropdown={showDropdown}
-        selectedDate={selectedDate}
-        setSelectedDate={setSelectedDate}
-        showDateDropdown={showDateDropdown}
-        setShowDateDropdown={setShowDateDropdown}
-        upcomingDates={upcomingDates}
-        guests={guests}
-        incrementGuests={incrementGuests}
-        decrementGuests={decrementGuests}
-        handleSearchButtonClick={handleSearchButtonClick}
-        view={view}
-        setView={setView}
-        clearSearchAndFilters={clearSearchAndFilters}
-        setActiveCategory={setActiveCategory}
-      />
+      <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
+          <div className="flex items-center justify-between h-20">
+            {/* Logo */}
+            <div className="flex-shrink-0 flex items-center text-rose-500 gap-1 cursor-pointer w-1/3" onClick={() => { setView('Home'); clearSearchAndFilters(); }}>
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
+                <path d="M16 1c2.008 0 3.463.963 4.751 3.269l.533 1.025c1.954 3.83 6.114 12.54 7.1 14.836l.145.353c.667 1.591.91 2.472.96 3.396l.01.415.001.228c0 4.062-2.877 6.478-6.357 6.478-2.224 0-4.556-1.258-6.709-3.386l-.257-.26-.172-.179h-.011l-.176.185c-2.044 2.1-4.268 3.42-6.535 3.615l-.28.019-.206.006C5.377 31 2.5 28.584 2.5 24.522l.005-.469c.026-.928.23-1.768.83-3.244l.216-.524c.966-2.298 5.083-10.87 7.11-14.892l.473-.912C12.443 2.052 13.923 1 16 1zm0 2c-1.396 0-2.378.608-3.35 2.372l-.427.809C10.3 10.026 6.302 18.256 5.377 20.407l-.234.566c-.456 1.155-.58 1.764-.598 2.48l-.004.382c0 2.875 1.957 4.165 4.36 4.165 1.69 0 3.527-.923 5.321-2.612l.423-.414.492-.511L16 23.32l.863 1.042.476.533c1.776 1.848 3.733 2.924 5.568 2.924 2.385 0 4.354-1.282 4.354-4.152l-.004-.326c-.029-.68-.15-1.259-.553-2.348l-.206-.525C25.541 18.22 21.6 10.12 19.646 6.275l-.478-.925C18.226 3.655 17.278 3 16 3zm0 9c2.32 0 4.602 1.487 6.445 4.095 1.765 2.497 2.652 5.025 2.652 7.371 0 1.983-.873 3.534-2.583 3.534-1.238 0-2.827-.852-4.525-2.55l-.488-.507C16.892 23.298 16.48 22 16 22c-.475 0-.895 1.289-1.503 1.93l-.489.52c-1.701 1.714-3.291 2.55-4.524 2.55-1.724 0-2.584-1.564-2.584-3.534 0-2.33 .887-4.85 2.65-7.348C11.395 13.487 13.681 12 16 12zm0 2c-1.636 0-3.324.965-4.75 3.018-1.403 2.016-2.15 4.02-2.15 5.928 0 1.07.391 1.554 1.084 1.554 1.083 0 2.361-1.026 3.57-2.388l.386-.45C14.774 20.89 15.352 19.5 16 19.5c.642 0 1.22 1.378 1.856 2.15l.385.45c1.21 1.365 2.49 2.392 3.573 2.392.69 0 1.082-.482 1.082-1.547 0-1.895-.747-3.886-2.15-5.888C19.324 14.966 17.636 14 16 14z" />
+              </svg>
+              <span className="hidden lg:block font-bold text-xl tracking-tight">airbnb</span>
+            </div>
+
+            {/* Search Bar */}
+            <div className="flex-1 flex justify-center w-full max-w-[500px] lg:max-w-none relative">
+              <div className="flex items-center shadow-sm hover:shadow-md transition-shadow border border-gray-300 rounded-full py-1.5 px-2 md:py-2 md:px-2 text-sm font-medium whitespace-nowrap bg-white relative z-20">
+                
+                {/* Location Typeahead */}
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    placeholder="Anywhere" 
+                    value={inputValue}
+                    onChange={handleLocationChange}
+                    onKeyDown={handleSearchKeyDown}
+                    className="bg-transparent outline-none px-4 w-28 sm:w-36 text-gray-900 placeholder-gray-900 font-semibold truncate"
+                  />
+                  {showDropdown && suggestions.length > 0 && (
+                    <div className="absolute top-full left-0 mt-3 w-64 bg-white rounded-3xl shadow-[0_8px_28px_rgba(0,0,0,0.15)] overflow-hidden py-4 z-50">
+                      {suggestions.map((loc, idx) => (
+                        <div 
+                          key={idx} 
+                          onClick={() => handleSuggestionClick(loc)}
+                          className="px-6 py-3 hover:bg-gray-100 cursor-pointer flex items-center gap-3 transition"
+                        >
+                          <div className="bg-gray-200 p-2 rounded-xl text-gray-700">
+                            <svg viewBox="0 0 32 32" className="h-4 w-4 fill-current"><path d="M16 0c-6.627 0-12 5.373-12 12 0 7.854 9.176 18.064 10.966 19.988.546.586 1.522.586 2.068 0C18.824 30.064 28 19.854 28 12c0-6.627-5.373-12-12-12zm0 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12z" /></svg>
+                          </div>
+                          <span className="text-base text-gray-800">{loc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <span className="w-px h-6 bg-gray-300 mx-1"></span>
+                
+                {/* Date Picker Dropdown */}
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowDateDropdown(!showDateDropdown)}
+                    className="bg-transparent outline-none px-4 w-24 sm:w-28 text-gray-900 font-semibold truncate hover:bg-gray-100 rounded-full py-1 text-left"
+                  >
+                    {selectedDate || "Any week"}
+                  </button>
+                  {showDateDropdown && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-56 bg-white rounded-3xl shadow-[0_8px_28px_rgba(0,0,0,0.15)] overflow-hidden py-4 z-50">
+                      <div className="px-6 pb-2 text-xs font-bold text-gray-500 uppercase">Upcoming weekends</div>
+                      {upcomingDates.map((date, idx) => (
+                        <div 
+                          key={idx} 
+                          onClick={() => { setSelectedDate(date); setShowDateDropdown(false); }}
+                          className={`px-6 py-3 hover:bg-gray-100 cursor-pointer transition ${selectedDate === date ? 'bg-gray-50 font-semibold text-black' : 'text-gray-700'}`}
+                        >
+                          {date}
+                        </div>
+                      ))}
+                      {selectedDate && (
+                        <div className="px-6 py-2 mt-2 border-t border-gray-100">
+                          <button onClick={() => { setSelectedDate(''); setShowDateDropdown(false); }} className="text-sm underline text-gray-600 hover:text-black">Clear dates</button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <span className="w-px h-6 bg-gray-300 mx-1"></span>
+                
+                {/* Guest Counter Segment */}
+                <div className="flex items-center pl-4 pr-1">
+                  <div className="hidden md:flex items-center gap-2 mr-2 w-28 justify-between">
+                    <button 
+                      onClick={decrementGuests}
+                      className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-900 transition text-gray-500 hover:text-gray-900"
+                    >
+                      -
+                    </button>
+                    <span className="text-gray-900 font-normal truncate whitespace-nowrap">
+                      {guests === 0 ? <span className="text-gray-500">Add guests</span> : <span className="font-semibold">{guests} guest{guests > 1 ? 's' : ''}</span>}
+                    </span>
+                    <button 
+                      onClick={incrementGuests}
+                      className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-900 transition text-gray-500 hover:text-gray-900"
+                    >
+                      +
+                    </button>
+                  </div>
+                  
+                  <button 
+                    onClick={handleSearchButtonClick}
+                    className="bg-rose-500 p-2.5 rounded-full text-white md:ml-1 hover:bg-rose-600 transition-colors z-10 flex items-center justify-center gap-2"
+                  >
+                    <svg viewBox="0 0 32 32" className="block h-3.5 w-3.5 fill-current font-bold stroke-current stroke-[1.5]" aria-hidden="true" role="presentation" focusable="false">
+                      <path d="M13 0c7.18 0 13 5.82 13 13 0 2.868-.929 5.519-2.502 7.669l7.916 7.917-2.828 2.828-7.917-7.916A12.94 12.94 0 0 1 13 26C5.82 26 0 20.18 0 13S5.82 0 13 0zm0 4a9 9 0 1 0 0 18 9 9 0 0 0 0-18z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Nav */}
+            <div className="flex items-center justify-end gap-1 w-1/3">
+              <button 
+                onClick={() => { setView('Wishlist'); setActiveCategory(null); }}
+                className={`hidden md:block text-sm font-semibold px-4 py-2.5 rounded-full transition ${view === 'Wishlist' ? 'text-rose-500' : 'text-gray-900 hover:bg-gray-100'}`}
+              >
+                Wishlists
+              </button>
+              <a href="#" className="hidden md:block text-sm font-semibold text-gray-900 hover:bg-gray-100 px-4 py-2.5 rounded-full transition">
+                Airbnb your home
+              </a>
+              <button className="flex items-center gap-3 border border-gray-300 rounded-full p-2 pl-3.5 hover:shadow-md transition bg-white ml-1">
+                <svg viewBox="0 0 32 32" className="block h-4 w-4 fill-current text-gray-600"><g fill="none" fillRule="nonzero"><path d="m2 16h28"></path><path d="m2 24h28"></path><path d="m2 8h28"></path></g><path d="M4 17h24v-2H4v2zm0-8h24V7H4v2zm0 16h24v-2H4v2z" /></svg>
+                <div className="bg-gray-500 text-white rounded-full h-8 w-8 flex items-center justify-center overflow-hidden">
+                  <svg viewBox="0 0 32 32" className="block h-8 w-8 fill-current text-white pt-1"><path d="M16 .7C7.56.7.7 7.56.7 16S7.56 31.3 16 31.3 31.3 24.44 31.3 16 24.44.7 16 .7zm0 28c-4.02 0-7.6-1.88-9.93-4.81a12.43 12.43 0 0 1 6.45-4.4A6.5 6.5 0 0 1 9.5 14a6.5 6.5 0 0 1 13 0 6.51 6.51 0 0 1-3.02 5.49 12.42 12.42 0 0 1 6.45 4.4A13.93 13.93 0 0 1 16 28.7z" /></svg>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
 
       {/* Category Bar */}
       {view === 'Home' && (
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 mt-5">
           <div className="flex items-center gap-8 overflow-x-auto pb-4 scrollbar-hide border-b border-gray-200">
             {categories.map((cat, idx) => (
-              <button
+              <button 
                 key={idx}
                 onClick={() => handleCategoryClick(cat.label)}
-                className={`flex flex-col items-center gap-2.5 min-w-max pb-3 border-b-2 transition-colors ${activeCategory === cat.label
-                    ? 'border-gray-900 text-gray-900'
+                className={`flex flex-col items-center gap-2.5 min-w-max pb-3 border-b-2 transition-colors ${
+                  activeCategory === cat.label 
+                    ? 'border-gray-900 text-gray-900' 
                     : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300'
-                  }`}
+                }`}
               >
                 <span className="text-2xl">{cat.icon}</span>
                 <span className="text-sm font-medium">{cat.label}</span>
@@ -237,18 +343,18 @@ export default function App() {
 
       {/* Main Content */}
       <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-6 space-y-12 min-h-[60vh]">
-
+        
         {initialLoading ? (
           <div className="flex flex-col items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500 mb-4"></div>
-            <p className="text-gray-500 font-semibold text-lg">Loading homes...</p>
+             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500 mb-4"></div>
+             <p className="text-gray-500 font-semibold text-lg">Loading homes...</p>
           </div>
         ) : visibleListings.length === 0 ? (
           <div className="flex flex-col justify-center items-center h-64 animate-in fade-in zoom-in-95">
-            <svg viewBox="0 0 32 32" className="h-16 w-16 fill-gray-300 mb-4"><path d="M26 14a12 12 0 1 0-8.6 11.5l6.2 6.2a1 1 0 0 0 1.4-1.4l-6.2-6.2A11.9 11.9 0 0 0 26 14zm-12 10a10 10 0 1 1 10-10 10 10 0 0 1-10 10z" /></svg>
+            <svg viewBox="0 0 32 32" className="h-16 w-16 fill-gray-300 mb-4"><path d="M26 14a12 12 0 1 0-8.6 11.5l6.2 6.2a1 1 0 0 0 1.4-1.4l-6.2-6.2A11.9 11.9 0 0 0 26 14zm-12 10a10 10 0 1 1 10-10 10 10 0 0 1-10 10z"/></svg>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">No exact matches</h2>
             <p className="text-gray-500 mb-6">Try changing or removing some of your filters.</p>
-            <button
+            <button 
               onClick={clearSearchAndFilters}
               className="border border-black text-black hover:bg-gray-50 px-6 py-2.5 rounded-lg font-semibold transition"
             >
@@ -300,30 +406,30 @@ export default function App() {
 
       {/* Listing Detail Modal with Backdrop Blur */}
       {selectedListing && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity"
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity" 
           onClick={() => setSelectedListing(null)}
         >
-          <div
+          <div 
             className="bg-white rounded-2xl max-w-3xl w-full max-h-[95vh] overflow-y-auto shadow-2xl relative animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
+            <button 
               onClick={() => setSelectedListing(null)}
               className="absolute top-4 left-4 bg-white/90 hover:bg-white rounded-full p-2 z-10 shadow-sm transition-transform hover:scale-105"
             >
               <svg viewBox="0 0 32 32" className="block h-4 w-4 fill-current"><path d="m20 28-11.29289322-11.2928932c-.39052429-.3905243-.39052429-1.0236893 0-1.4142136l11.29289322-11.2928932" stroke="currentColor" strokeWidth="3" fill="none" /></svg>
             </button>
-
+            
             {/* Modal Image */}
             <div className="w-full h-80 relative">
-              <img
-                src={selectedListing.image}
-                alt={selectedListing.title}
+              <img 
+                src={selectedListing.image} 
+                alt={selectedListing.title} 
                 className="w-full h-full object-cover rounded-t-2xl"
               />
             </div>
-
+            
             <div className="p-8">
               <div className="flex justify-between items-start mb-6">
                 <div>
@@ -337,12 +443,12 @@ export default function App() {
                   </div>
                 </div>
               </div>
-
+              
               {/* Host and Category row */}
               <div className="flex items-center gap-4 mb-6 border-b border-gray-200 pb-6">
-                <img
-                  src={`https://ui-avatars.com/api/?name=Host&background=random`}
-                  alt="Host"
+                <img 
+                  src={`https://ui-avatars.com/api/?name=Host&background=random`} 
+                  alt="Host" 
                   className="w-14 h-14 rounded-full border border-gray-200 shadow-sm"
                 />
                 <div>
@@ -367,13 +473,14 @@ export default function App() {
                     ₹{selectedListing.price} × {selectedListing.nights || 2} nights = ₹{selectedListing.price * (selectedListing.nights || 2)} total
                   </div>
                 </div>
-                <button
+                <button 
                   onClick={() => setIsReserved(true)}
                   disabled={isReserved}
-                  className={`px-10 py-4 rounded-xl font-bold text-lg transition shadow-md ${isReserved
-                      ? 'bg-green-500 hover:bg-green-600 text-white cursor-default transform-none'
+                  className={`px-10 py-4 rounded-xl font-bold text-lg transition shadow-md ${
+                    isReserved 
+                      ? 'bg-green-500 hover:bg-green-600 text-white cursor-default transform-none' 
                       : 'bg-rose-500 hover:bg-rose-600 text-white hover:scale-105 active:scale-95'
-                    }`}
+                  }`}
                 >
                   {isReserved ? 'Reserved! ✓' : 'Reserve'}
                 </button>
@@ -410,3 +517,4 @@ export default function App() {
     </div>
   );
 }
+
