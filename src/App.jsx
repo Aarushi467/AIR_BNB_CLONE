@@ -129,7 +129,9 @@ export default function App() {
     setAppliedSearchTerm(term);
     setInputValue(term);
     setShowDropdown(false);
+    setShowDateDropdown(false); // Close date dropdown if open
     setActiveCategory(null); // Reset category when doing a new search
+    setView('Home'); // Ensure we switch back to the main listings view
   };
 
   const handleSuggestionClick = (loc) => applySearch(loc);

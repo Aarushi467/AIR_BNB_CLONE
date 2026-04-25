@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function Navbar({
   inputValue,
@@ -23,6 +23,20 @@ export default function Navbar({
   setActiveCategory,
 }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [expandedMenu, setExpandedMenu] = useState(null);
+  const profileMenuRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setShowProfileMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
@@ -149,7 +163,7 @@ export default function Navbar({
               Airbnb your home
             </a>
             
-            <div className="relative">
+            <div className="relative" ref={profileMenuRef}>
               <button 
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
                 className="flex items-center gap-3 border border-gray-300 rounded-full p-2 pl-3.5 hover:shadow-md transition bg-white ml-1"
@@ -163,9 +177,24 @@ export default function Navbar({
               {showProfileMenu && (
                 <div className="absolute top-[calc(100%+12px)] right-0 w-64 bg-white rounded-xl shadow-[0_8px_28px_rgba(0,0,0,0.15)] overflow-hidden py-2 z-50 text-sm font-medium">
                   <div className="flex flex-col">
-                    <button className="text-left px-4 py-3 hover:bg-gray-100 transition flex items-center gap-3 text-gray-800">
-                      <span className="text-lg">👤</span> My Profile
-                    </button>
+                    <div className="flex flex-col">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setExpandedMenu(expandedMenu === 'profile' ? null : 'profile'); }}
+                        className="text-left px-4 py-3 hover:bg-gray-100 transition flex items-center justify-between text-gray-800"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg">👤</span> My Profile
+                        </div>
+                        <span className={`text-xs transition-transform ${expandedMenu === 'profile' ? 'rotate-90' : ''}`}>▶</span>
+                      </button>
+                      {expandedMenu === 'profile' && (
+                        <div className="bg-gray-50 flex flex-col py-1 border-y border-gray-100">
+                          <button className="text-left pl-12 pr-4 py-2 hover:bg-gray-200 transition text-gray-600 text-sm">• Personal Info</button>
+                          <button className="text-left pl-12 pr-4 py-2 hover:bg-gray-200 transition text-gray-600 text-sm">• Login & Security</button>
+                          <button className="text-left pl-12 pr-4 py-2 hover:bg-gray-200 transition text-gray-600 text-sm">• Verification</button>
+                        </div>
+                      )}
+                    </div>
                     <button className="text-left px-4 py-3 hover:bg-gray-100 transition flex items-center gap-3 text-gray-800">
                       <span className="text-lg">🧳</span> My Trips
                     </button>
@@ -192,20 +221,69 @@ export default function Navbar({
                     <button className="text-left px-4 py-3 hover:bg-gray-100 transition flex items-center gap-3 text-gray-800">
                       <span className="text-lg">💼</span> My Listings
                     </button>
-                    <button className="text-left px-4 py-3 hover:bg-gray-100 transition flex items-center gap-3 text-gray-800">
-                      <span className="text-lg">💳</span> Payments
-                    </button>
+                    
+                    <div className="flex flex-col">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setExpandedMenu(expandedMenu === 'payments' ? null : 'payments'); }}
+                        className="text-left px-4 py-3 hover:bg-gray-100 transition flex items-center justify-between text-gray-800"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg">💳</span> Payments
+                        </div>
+                        <span className={`text-xs transition-transform ${expandedMenu === 'payments' ? 'rotate-90' : ''}`}>▶</span>
+                      </button>
+                      {expandedMenu === 'payments' && (
+                        <div className="bg-gray-50 flex flex-col py-1 border-y border-gray-100">
+                          <button className="text-left pl-12 pr-4 py-2 hover:bg-gray-200 transition text-gray-600 text-sm">• Saved Cards</button>
+                          <button className="text-left pl-12 pr-4 py-2 hover:bg-gray-200 transition text-gray-600 text-sm">• Transaction History</button>
+                          <button className="text-left pl-12 pr-4 py-2 hover:bg-gray-200 transition text-gray-600 text-sm">• Add Payment Method</button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="h-px bg-gray-200 my-1"></div>
                   
                   <div className="flex flex-col">
-                    <button className="text-left px-4 py-3 hover:bg-gray-100 transition flex items-center gap-3 text-gray-800">
-                      <span className="text-lg">⚙️</span> Settings
-                    </button>
-                    <button className="text-left px-4 py-3 hover:bg-gray-100 transition flex items-center gap-3 text-gray-800">
-                      <span className="text-lg">🌐</span> Language & Currency
-                    </button>
+                    <div className="flex flex-col">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setExpandedMenu(expandedMenu === 'settings' ? null : 'settings'); }}
+                        className="text-left px-4 py-3 hover:bg-gray-100 transition flex items-center justify-between text-gray-800"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg">⚙️</span> Settings
+                        </div>
+                        <span className={`text-xs transition-transform ${expandedMenu === 'settings' ? 'rotate-90' : ''}`}>▶</span>
+                      </button>
+                      {expandedMenu === 'settings' && (
+                        <div className="bg-gray-50 flex flex-col py-1 border-y border-gray-100">
+                          <button className="text-left pl-12 pr-4 py-2 hover:bg-gray-200 transition text-gray-600 text-sm">• Privacy</button>
+                          <button className="text-left pl-12 pr-4 py-2 hover:bg-gray-200 transition text-gray-600 text-sm">• Notifications</button>
+                          <button className="text-left pl-12 pr-4 py-2 hover:bg-gray-200 transition text-gray-600 text-sm">• Appearance (Dark Mode 🌙)</button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setExpandedMenu(expandedMenu === 'language' ? null : 'language'); }}
+                        className="text-left px-4 py-3 hover:bg-gray-100 transition flex items-center justify-between text-gray-800"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg">🌐</span> Language & Currency
+                        </div>
+                        <span className={`text-xs transition-transform ${expandedMenu === 'language' ? 'rotate-90' : ''}`}>▶</span>
+                      </button>
+                      {expandedMenu === 'language' && (
+                        <div className="bg-gray-50 flex flex-col py-1 border-y border-gray-100">
+                          <button className="text-left pl-12 pr-4 py-2 hover:bg-gray-200 transition text-gray-600 text-sm">• English (IN)</button>
+                          <button className="text-left pl-12 pr-4 py-2 hover:bg-gray-200 transition text-gray-600 text-sm">• Hindi</button>
+                          <button className="text-left pl-12 pr-4 py-2 hover:bg-gray-200 transition text-gray-600 text-sm">• USD $</button>
+                          <button className="text-left pl-12 pr-4 py-2 hover:bg-gray-200 transition text-gray-600 text-sm">• INR ₹</button>
+                        </div>
+                      )}
+                    </div>
+
                     <button className="text-left px-4 py-3 hover:bg-gray-100 transition flex items-center gap-3 text-gray-800">
                       <span className="text-lg">❓</span> Help Center
                     </button>
