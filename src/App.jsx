@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Navbar from "./components/Navbar";
 
 const categories = [
   { label: 'Beachfront', icon: '🏖️' },
@@ -26,7 +27,7 @@ const Card = ({ listing, isFav, toggleFav, onClickCard }) => {
             Guest favourite
           </div>
         )}
-        <button 
+        <button
           onClick={(e) => { e.stopPropagation(); toggleFav(listing.id); }}
           className="absolute top-3 right-3 z-10 p-1 hover:scale-110 transition-transform"
         >
@@ -34,8 +35,8 @@ const Card = ({ listing, isFav, toggleFav, onClickCard }) => {
             <path d="M16 28c7-4.73 14-10 14-17a6.98 6.98 0 0 0-7-7c-1.8 0-3.58.68-4.95 2.05L16 8.1l-2.05-2.05a6.98 6.98 0 0 0-9.9 0A6.98 6.98 0 0 0 2 11c0 7 7 12.27 14 17z" />
           </svg>
         </button>
-        <img 
-          src={listing.image} 
+        <img
+          src={listing.image}
           alt={listing.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out"
         />
@@ -223,8 +224,8 @@ export default function App() {
                 key={idx}
                 onClick={() => handleCategoryClick(cat.label)}
                 className={`flex flex-col items-center gap-2.5 min-w-max pb-3 border-b-2 transition-colors ${activeCategory === cat.label
-                    ? 'border-gray-900 text-gray-900'
-                    : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300'
                   }`}
               >
                 <span className="text-2xl">{cat.icon}</span>
@@ -262,11 +263,11 @@ export default function App() {
                 <h2 className="text-3xl font-bold mb-6 tracking-tight">Your Wishlist</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-6 gap-y-10">
                   {visibleListings.map(listing => (
-                    <Card 
-                      key={listing.id} 
-                      listing={listing} 
-                      isFav={favorites.includes(listing.id)} 
-                      toggleFav={toggleFav} 
+                    <Card
+                      key={listing.id}
+                      listing={listing}
+                      isFav={favorites.includes(listing.id)}
+                      toggleFav={toggleFav}
                       onClickCard={(l) => { setSelectedListing(l); setIsReserved(false); }}
                     />
                   ))}
@@ -283,11 +284,11 @@ export default function App() {
                 )}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-6 gap-y-10">
                   {visibleListings.map(listing => (
-                    <Card 
-                      key={listing.id} 
-                      listing={listing} 
-                      isFav={favorites.includes(listing.id)} 
-                      toggleFav={toggleFav} 
+                    <Card
+                      key={listing.id}
+                      listing={listing}
+                      isFav={favorites.includes(listing.id)}
+                      toggleFav={toggleFav}
                       onClickCard={(l) => { setSelectedListing(l); setIsReserved(false); }}
                     />
                   ))}
@@ -371,8 +372,8 @@ export default function App() {
                   onClick={() => setIsReserved(true)}
                   disabled={isReserved}
                   className={`px-10 py-4 rounded-xl font-bold text-lg transition shadow-md ${isReserved
-                      ? 'bg-green-500 hover:bg-green-600 text-white cursor-default transform-none'
-                      : 'bg-rose-500 hover:bg-rose-600 text-white hover:scale-105 active:scale-95'
+                    ? 'bg-green-500 hover:bg-green-600 text-white cursor-default transform-none'
+                    : 'bg-rose-500 hover:bg-rose-600 text-white hover:scale-105 active:scale-95'
                     }`}
                 >
                   {isReserved ? 'Reserved! ✓' : 'Reserve'}
